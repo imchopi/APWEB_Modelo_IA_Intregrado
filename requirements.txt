@@ -1,0 +1,7 @@
+## Descomentar según necesidad de uso en el proyecto (Añadir, descomentar o eliminar)
+# streamlit
+# joblib
+# pandas
+# scikit-learn
+# matplotlib
+# tensorflow
