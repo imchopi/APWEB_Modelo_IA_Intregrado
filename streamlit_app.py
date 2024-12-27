@@ -66,12 +66,24 @@ questions = {
     "OPN10": "Estoy lleno de ideas."
 }
 
+# Mapeo de respuestas a valores numéricos
+response_mapping = {
+    "En desacuerdo": 1,
+    "Ligeramente en desacuerdo": 2,
+    "Neutro": 3,
+    "Ligeramente de acuerdo": 4,
+    "De acuerdo": 5
+}
+
 responses = {}
 for key, question in questions.items():
-    responses[key] = st.radio(question, ["De acuerdo", "En desacuerdo"])
+    responses[key] = st.radio(
+        question, 
+        ["En desacuerdo", "Ligeramente en desacuerdo", "Neutro", "Ligeramente de acuerdo", "De acuerdo"]
+    )
 
 # Prepara los datos para la predicción
-input_data = [1 if responses[key] == "De acuerdo" else 0 for key in questions.keys()]
+input_data = [response_mapping[responses[key]] for key in questions.keys()]
 input_df = pd.DataFrame([input_data], columns=questions.keys())
 
 # Realiza la predicción
