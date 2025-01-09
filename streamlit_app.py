@@ -8,8 +8,8 @@ st.write("Responda las siguientes preguntas para predecir su personalidad.")
 st.image("img/personality.png", use_container_width=True)
 
 # Carga el modelo entrenado y las asignaciones
-model = joblib.load("model/personality_model.joblib")
-with open("model/category_mapping.json", "r") as f:
+model = joblib.load("data/model/personality_model.joblib")
+with open("data/model/category_mapping.json", "r") as f:
     category_mapping = json.load(f)
 
 # Preguntas de personalidad
