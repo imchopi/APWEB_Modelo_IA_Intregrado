@@ -1,39 +1,7 @@
 {
-  "personality_traits": {
-    "extroversion": [
-      "I am the life of the party.",
-      "I feel comfortable around people.",
-      "I start conversations.",
-      "I talk to a lot of different people at parties.",
-      "I don't mind being the center of attention."
-    ],
-    "agreeableness": [
-      "I am interested in people.",
-      "I sympathize with others' feelings.",
-      "I have a soft heart.",
-      "I take time out for others.",
-      "I make people feel at ease."
-    ],
-    "conscientiousness": [
-      "I am always prepared.",
-      "I pay attention to details.",
-      "I like order.",
-      "I follow a schedule.",
-      "I am exacting in my work."
-    ],
-    "neuroticism": [
-      "I get stressed out easily.",
-      "I worry about things.",
-      "I get upset easily.",
-      "I have frequent mood swings.",
-      "I often feel blue."
-    ],
-    "openness": [
-      "I have a rich vocabulary.",
-      "I have a vivid imagination.",
-      "I have excellent ideas.",
-      "I spend time reflecting on things.",
-      "I am full of ideas."
-    ]
-  }
+    "0": "Extrovertido",
+    "1": "Amable",
+    "2": "Responsable",
+    "3": "Inestable emocionalmente",
+    "4": "Abierto a la experiencia"
 }
