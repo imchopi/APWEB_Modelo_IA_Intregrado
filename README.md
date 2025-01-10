@@ -14,10 +14,7 @@ Utiliza un modelo de aprendizaje automático para realizar las predicciones y es
 
 ## Uso
 
-- Puedes usar directamente la página hosteada en `Streamlit`, para realizar la encuesta y recibir una predicción: <a>https://apwebia.streamlit.app/</a>
-
-> [!NOTE]
-> Si quieres correr este modelo de forma local sigue el siguiente paso de la instalación de forma local
+- Puedes usar directamente la página hosteada en `Streamlit`, para realizar la encuesta y recibir una predicción: <a>https://apwebia.streamlit.app/</a> o instalar la app de forma local.
 
 ## Instalación de la app de forma local
 
@@ -26,15 +23,13 @@ Utiliza un modelo de aprendizaje automático para realizar las predicciones y es
     git clone https://github.com/imchopi/APWEB_Modelo_IA_Intregrado
     cd APWEB_Modelo_IA_Intregrado
     ```
+> [!IMPORTANT]
+> Para realizar el siguiente paso necesitarás tener instalado docker. Podrás hacerlo desde su página oficial: <a>https://docs.docker.com/engine/install/</a>
 
 2. **Docker**: Puedes usar Docker para ejecutar la aplicación en un contenedor. Construye la imagen y ejecuta el contenedor con:
     ```sh
-    docker-compose up --build
+    docker-compose up
     ```
-
-> [!IMPORTANT]
-> Para realizar este paso necesitarás tener instalado docker. Podrás hacerlo desde su página oficial: <a>https://docs.docker.com/engine/install/</a>
-    
 
 Tras esto podrás dirigirte a tu navegador y buscar la siguiente dirección: `http://localhost:8501`
 
