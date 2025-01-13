@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import joblib
 import json
+import numpy as np
+from sklearn.metrics.pairwise import pairwise_distances
 
 # Configuración de la página
 st.set_page_config(
@@ -60,6 +62,13 @@ with col2:
             📊 Los 10 principales países según el número de entrevistas
         </p>
     """, unsafe_allow_html=True)
+
+def calculate_reliability(model, data):
+    distances = pairwise_distances(data.reshape(1, -1), model.cluster_centers_)
+    min_distance = np.min(distances)
+    max_distance = np.max(distances)
+    reliability = 1 - (min_distance / max_distance)
+    return reliability * 100
 
 # Cargar modelo y mapeo
 @st.cache_resource
@@ -144,17 +153,12 @@ category_colors = {
 }
 
 # Inicializar estado de la sesión
-
-# if 'responses' not in st.session_state:
-    # st.session_state.responses = {}
-
 if 'responses' not in st.session_state:
     st.session_state.responses = {q_key: "Neutral" for q_key in questions.keys()}
 
 # Barra de progreso
 total_questions = sum(len(qs) for qs in categories.values())
-# completed_questions = len([r for r in st.session_state.responses.values() if r != "Seleccione una opción"])
-completed_questions = len([r for r in st.session_state.responses.values() if r != "Neutral"])  # Solo respuestas distintas de "Neutral"
+completed_questions = len([r for r in st.session_state.responses.values() if r != "Neutral"])
 progress = completed_questions / total_questions
 
 st.progress(progress)
@@ -162,9 +166,7 @@ st.markdown(f"""
     <div style='text-align: center; color: #666;'>
         Progreso: {completed_questions}/{total_questions} preguntas respondidas ({int(progress * 100)}%)
     </div>
-""", unsafe_allow_html=True) 
-
-
+""", unsafe_allow_html=True)
 
 # Crear tabs para las categorías
 tabs = st.tabs(list(categories.keys()))
@@ -192,9 +194,6 @@ for idx, (category, q_keys) in enumerate(categories.items()):
             )
             st.session_state.responses[q_key] = response
 
-
-
-
 # Botón de predicción
 if st.button("📊 Realizar predicción", type="primary", use_container_width=True):
     if len(st.session_state.responses) == total_questions:
@@ -210,8 +209,12 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
             data = [response_mapping[resp] for resp in st.session_state.responses.values()]
             
             try:
+                data_array = np.array(data)
                 prediction = model.predict([data])
                 result = category_mapping[str(prediction[0])]
+                
+                # Calcular la fiabilidad
+                reliability = calculate_reliability(model, data_array)
                 
                 st.markdown("""
                     <div style='background-color: #f0f2f6; padding: 2rem; border-radius: 0.5rem; margin: 2rem 0;'>
@@ -227,12 +230,26 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
 """, unsafe_allow_html=True)
 
                 
+                # Mostrar la fiabilidad con un indicador visual
+                st.markdown(f"""
+                    <div style='background-color: white; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;'>
+                        <h3>Fiabilidad de la predicción: {reliability:.2f}%</h3>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                # Create gauge chart for reliability
+                reliability_color = "#2ecc71" if reliability >= 70 else "#f1c40f" if reliability >= 50 else "#e74c3c"
+                st.progress(reliability/100)
+                
                 results_df = pd.DataFrame({
                     'Categoría': list(categories.keys()),
                     'Puntuación': [sum(data[i:i+10])/10 for i in range(0, len(data), 10)]
                 })
                 
                 st.bar_chart(results_df.set_index('Categoría'))
+                
+                # Include reliability in the downloaded results
+                results_df['Fiabilidad'] = reliability
                 
                 st.download_button(
                     label="📥 Descargar resultados",
