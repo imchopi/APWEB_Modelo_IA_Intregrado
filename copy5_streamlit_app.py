@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import joblib
 import json
-import matplotlib.pyplot as plt
 
 # Configuración de la página
 st.set_page_config(
@@ -31,7 +30,6 @@ st.markdown("""
             border-radius: 0.5rem;
             margin: 0.5rem 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            font-weight: bold;
         }
         .small-text {
             font-size: 0.8rem;
@@ -146,13 +144,16 @@ category_colors = {
 }
 
 # Inicializar estado de la sesión
+
+# if 'responses' not in st.session_state:
+    # st.session_state.responses = {}
+
 if 'responses' not in st.session_state:
-    st.session_state.responses = {}
-    st.session_state.previous_responses = {}  # Add this to track changes
+    st.session_state.responses = {q_key: "Neutral" for q_key in questions.keys()}
 
 # Barra de progreso
 total_questions = sum(len(qs) for qs in categories.values())
-completed_questions = len([resp for resp in st.session_state.responses.values() if resp != "Neutral"])
+completed_questions = len([r for r in st.session_state.responses.values() if r != "Neutral"])  # Solo respuestas distintas de "Neutral"
 progress = completed_questions / total_questions
 
 st.progress(progress)
@@ -160,7 +161,9 @@ st.markdown(f"""
     <div style='text-align: center; color: #666;'>
         Progreso: {completed_questions}/{total_questions} preguntas respondidas ({int(progress * 100)}%)
     </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True) 
+
+
 
 # Crear tabs para las categorías
 tabs = st.tabs(list(categories.keys()))
@@ -180,30 +183,21 @@ for idx, (category, q_keys) in enumerate(categories.items()):
                 </div>
             """, unsafe_allow_html=True)
             
-            # Store the previous value before updating
-            previous_value = st.session_state.responses.get(q_key, "Neutral")
-            
             response = st.select_slider(
                 "",
                 options=["Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"],
                 key=q_key,
-                value=previous_value
+                value="Neutral"
             )
-            
-            # Update responses based on changes
-            if response != "Neutral":
-                st.session_state.responses[q_key] = response
-            elif q_key in st.session_state.responses and response == "Neutral":
-                del st.session_state.responses[q_key]
-            
-            # Force rerun if this is the first response or if the response changed
-            if (previous_value == "Neutral" and response != "Neutral") or (previous_value != response):
-                st.session_state.previous_responses = dict(st.session_state.responses)
-                st.rerun()  # Updated from experimental_rerun() to rerun()
+
+            st.session_state.responses[q_key] = response
+
+
+
 
 # Botón de predicción
 if st.button("📊 Realizar predicción", type="primary", use_container_width=True):
-    if len(st.session_state.responses) > 0:
+    if len(st.session_state.responses) == total_questions:
         with st.spinner('Analizando respuestas...'):
             response_mapping = {
                 "Totalmente en desacuerdo": 1,
@@ -213,11 +207,7 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                 "Totalmente de acuerdo": 5
             }
             
-            # Create data array with Neutral (3) as default for missing responses
-            data = []
-            for q_key in questions.keys():
-                response = st.session_state.responses.get(q_key, "Neutral")
-                data.append(response_mapping[response])
+            data = [response_mapping[resp] for resp in st.session_state.responses.values()]
             
             try:
                 prediction = model.predict([data])
@@ -227,33 +217,22 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                     <div style='background-color: #f0f2f6; padding: 2rem; border-radius: 0.5rem; margin: 2rem 0;'>
                         <h2 style='color: #1f77b4; text-align: center;'>🎉 Resultados del Análisis</h2>
                 """, unsafe_allow_html=True)
+                
+                # st.success(f"Su tipo de personalidad es: {result}")
 
                 st.markdown(f"""
-                    <div style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
-                        <h2 style="text-align: center; font-size: 1.5rem;">🎉 Su tipo de personalidad es: {result}</h2>
-                    </div>
-                """, unsafe_allow_html=True)
+    <div style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+        <h2 style="text-align: center; font-size: 1.5rem;">🎉 Su tipo de personalidad es: {result}</h2>
+    </div>
+""", unsafe_allow_html=True)
+
                 
                 results_df = pd.DataFrame({
                     'Categoría': list(categories.keys()),
                     'Puntuación': [sum(data[i:i+10])/10 for i in range(0, len(data), 10)]
                 })
                 
-                # Graficar los resultados
-                
-                # st.bar_chart(results_df.set_index('Categoría'))
-
-                fig, ax = plt.subplots(figsize=(8, 5))
-                bars = ax.bar(results_df['Categoría'], results_df['Puntuación'], color=plt.cm.Paired(range(len(results_df))))
-
-                plt.xticks(rotation=45, ha='right')
-
-                ax.bar_label(bars, fontsize=8)
-
-                ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.2f}'))
-
-                st.pyplot(fig, use_container_width=False)
-
+                st.bar_chart(results_df.set_index('Categoría'))
                 
                 st.download_button(
                     label="📥 Descargar resultados",
@@ -268,7 +247,7 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
             except Exception as e:
                 st.error(f"Error en la predicción: {e}")
     else:
-        st.warning("Por favor, responda al menos una pregunta antes de continuar.")
+        st.warning("Por favor, responda todas las preguntas antes de continuar.")
 
 # Pie de página
 st.markdown("""
