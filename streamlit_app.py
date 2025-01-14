@@ -50,7 +50,7 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.markdown("### 📝 Complete el test de personalidad")
     st.markdown("""
-        <div style='background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem;'>
+        <div style="background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem;">
             ⏱️ Cada test tarda una media de 10-15 mins en ser completado
         </div>
     """, unsafe_allow_html=True)
@@ -58,7 +58,7 @@ with col1:
 with col2:
     st.image("img/BarChartScene_white.png", use_container_width=True)
     st.markdown("""
-        <p style='text-align: center; color: #666;'>
+        <p style="text-align: center; color: #666;">
             📊 Los 10 principales países según el número de entrevistas
         </p>
     """, unsafe_allow_html=True)
@@ -146,7 +146,7 @@ category_colors = {
 }
 
 # Inicializar estado de la sesión
-if 'responses' not in st.session_state:
+if "responses" not in st.session_state:
     st.session_state.responses = {}
     st.session_state.previous_responses = {}  # Add this to track changes
 
@@ -157,30 +157,29 @@ progress = completed_questions / total_questions
 
 st.progress(progress)
 st.markdown(f"""
-    <div style='text-align: center; color: #666;'>
+    <div style="text-align: center; color: #666;">
         Progreso: {completed_questions}/{total_questions} preguntas respondidas ({int(progress * 100)}%)
     </div>
 """, unsafe_allow_html=True)
 
-# Crear tabs para las categorías
+# Crear pestañas para las categorías
 tabs = st.tabs(list(categories.keys()))
 
 for idx, (category, q_keys) in enumerate(categories.items()):
     with tabs[idx]:
         st.markdown(f"""
-            <div class='category-title' style='background-color: {category_colors[category]}20;'>
-                <h2 style='color: {category_colors[category]};'>{category}</h2>
+            <div class="category-title" style="background-color: {category_colors[category]}20;">
+                <h2 style="color: {category_colors[category]};">{category}</h2>
             </div>
         """, unsafe_allow_html=True)
         
         for q_key in q_keys:
             st.markdown(f"""
-                <div class='question-container'>
+                <div class="question-container">
                     {questions[q_key]}
                 </div>
             """, unsafe_allow_html=True)
             
-            # Store the previous value before updating
             previous_value = st.session_state.responses.get(q_key, "Neutral")
             
             response = st.select_slider(
@@ -190,13 +189,12 @@ for idx, (category, q_keys) in enumerate(categories.items()):
                 value=previous_value
             )
             
-            # Update responses based on changes
             if response != "Neutral":
                 st.session_state.responses[q_key] = response
             elif q_key in st.session_state.responses and response == "Neutral":
                 del st.session_state.responses[q_key]
             
-            # Force rerun if this is the first response or if the response changed
+            # Forzar la reejecución si esta es la primera respuesta o si la respuesta ha cambiado.
             if (previous_value == "Neutral" and response != "Neutral") or (previous_value != response):
                 st.session_state.previous_responses = dict(st.session_state.responses)
                 st.rerun()  # Updated from experimental_rerun() to rerun()
@@ -204,7 +202,7 @@ for idx, (category, q_keys) in enumerate(categories.items()):
 # Botón de predicción
 if st.button("📊 Realizar predicción", type="primary", use_container_width=True):
     if len(st.session_state.responses) > 0:
-        with st.spinner('Analizando respuestas...'):
+        with st.spinner("Analizando respuestas..."):
             response_mapping = {
                 "Totalmente en desacuerdo": 1,
                 "En desacuerdo": 2,
@@ -213,19 +211,19 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                 "Totalmente de acuerdo": 5
             }
             
-            # Create data array with Neutral (3) as default for missing responses
             data = []
             for q_key in questions.keys():
                 response = st.session_state.responses.get(q_key, "Neutral")
                 data.append(response_mapping[response])
             
+            # Mostrar resultados
             try:
                 prediction = model.predict([data])
                 result = category_mapping[str(prediction[0])]
                 
                 st.markdown("""
-                    <div style='background-color: #f0f2f6; padding: 2rem; border-radius: 0.5rem; margin: 2rem 0;'>
-                        <h2 style='color: #1f77b4; text-align: center;'>🎉 Resultados del Análisis</h2>
+                    <div style="background-color: #f0f2f6; padding: 2rem; border-radius: 0.5rem; margin: 2rem 0;">
+                        <h2 style="color: #1f77b4; text-align: center;">🎉 Resultados del Análisis</h2>
                 """, unsafe_allow_html=True)
 
                 st.markdown(f"""
@@ -235,26 +233,23 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                 """, unsafe_allow_html=True)
                 
                 results_df = pd.DataFrame({
-                    'Categoría': list(categories.keys()),
-                    'Puntuación': [sum(data[i:i+10])/10 for i in range(0, len(data), 10)]
+                    "Categoría": list(categories.keys()),
+                    "Puntuación": [sum(data[i:i+10])/10 for i in range(0, len(data), 10)]
                 })
                 
-                # Graficar los resultados
-                
-                # st.bar_chart(results_df.set_index('Categoría'))
+                # Mostrar gráfico de barras
+                fig, ax = plt.subplots(figsize=(8, 4))
+                bars = ax.bar(results_df["Categoría"], results_df["Puntuación"], color=plt.cm.Paired(range(len(results_df))))
 
-                fig, ax = plt.subplots(figsize=(8, 5))
-                bars = ax.bar(results_df['Categoría'], results_df['Puntuación'], color=plt.cm.Paired(range(len(results_df))))
-
-                plt.xticks(rotation=45, ha='right')
+                plt.xticks(rotation=45, ha="right")
 
                 ax.bar_label(bars, fontsize=8)
 
-                ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.2f}'))
+                ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.2f}"))
 
                 st.pyplot(fig, use_container_width=False)
 
-                
+                # Descargar resultados
                 st.download_button(
                     label="📥 Descargar resultados",
                     data=results_df.to_csv(index=False),
@@ -272,8 +267,8 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
 
 # Pie de página
 st.markdown("""
-    <div style='text-align: center; color: #666; padding: 2rem 0; border-top: 1px solid #eee; margin-top: 2rem;'>
+    <div style="text-align: center; color: #666; padding: 2rem 0; border-top: 1px solid #eee; margin-top: 2rem;">
         <p>Desarrollado con ❤️ por:</br>Hugo Peralta</br>Adrian Perogil</br>Natalie Pilkington</p>
-        <p class='small-text'>Versión 1.1.0</p>
+        <p class="small-text">Versión 1.1.0</p>
     </div>
 """, unsafe_allow_html=True)

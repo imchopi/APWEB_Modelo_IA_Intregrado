@@ -35,8 +35,6 @@ Tras esto podrás dirigirte a tu navegador y buscar la siguiente dirección: `ht
 
 Aquí podrás ver de forma local la aplicación `Streamlit`, hosteada en tu imagen docker de forma local.
 
-
-
 ### Entrenamiento del Modelo
 
 Los datos para entrenar el modelo lo sacamos del siguiente dataset de `Kaggle`:  
