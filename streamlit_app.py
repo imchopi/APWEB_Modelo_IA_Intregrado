@@ -2,12 +2,11 @@ import streamlit as st
 import pandas as pd
 import joblib
 import json
-import matplotlib.pyplot as plt
 
 # Configuración de la página
 st.set_page_config(
     page_title="Predicción de Personalidad",
-    layout="wide",
+    # layout="wide",
     initial_sidebar_state="collapsed"
 )
 
@@ -37,6 +36,9 @@ st.markdown("""
             font-size: 0.8rem;
             color: #666;
         }
+        .stButton>button {            
+            margin-top: 2rem;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -44,24 +46,21 @@ st.markdown("""
 st.title("🎯 Predicción de Personalidad")
 st.image("img/personality.png", use_container_width=True)
 
-# Creación de dos columnas principales
-col1, col2 = st.columns([2, 1])
+# Descripción del test
+st.markdown("### 📝 Complete el test de personalidad")
+st.markdown("""
+    <div style="background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem;">
+        ⏱️ Cada test tarda una media de 10-15 mins en ser completado
+    </div>
+""", unsafe_allow_html=True)
 
-with col1:
-    st.markdown("### 📝 Complete el test de personalidad")
-    st.markdown("""
-        <div style="background-color: #f0f2f6; padding: 1rem; border-radius: 0.5rem;">
-            ⏱️ Cada test tarda una media de 10-15 mins en ser completado
-        </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.image("img/BarChartScene_white.png", use_container_width=True)
-    st.markdown("""
-        <p style="text-align: center; color: #666;">
-            📊 Los 10 principales países según el número de entrevistas
-        </p>
-    """, unsafe_allow_html=True)
+# Imagen de países alineada a la izquierda
+st.image("img/BarChartScene_white.png", use_container_width=True)
+st.markdown("""
+    <p style="text-align: left; color: #666;">
+        📊 Los 10 principales países según el número de entrevistas
+    </p>
+""", unsafe_allow_html=True)
 
 # Cargar modelo y mapeo
 @st.cache_resource
@@ -73,7 +72,7 @@ def load_model():
 
 model, category_mapping = load_model()
 
-# Diccionario completo de preguntas
+# Diccionario de preguntas
 questions = {
     "EXT1": "Soy el alma de la fiesta.",
     "EXT2": "No hablo mucho.",
@@ -129,16 +128,15 @@ questions = {
 
 # Categorías
 categories = {
-    "Extroversión": ["EXT1", "EXT2", "EXT3", "EXT4", "EXT5", "EXT6", "EXT7", "EXT8", "EXT9", "EXT10"],
+    "Extraversión": ["EXT1", "EXT2", "EXT3", "EXT4", "EXT5", "EXT6", "EXT7", "EXT8", "EXT9", "EXT10"],
     "Inestabilidad emocional": ["EST1", "EST2", "EST3", "EST4", "EST5", "EST6", "EST7", "EST8", "EST9", "EST10"],
     "Amabilidad": ["AGR1", "AGR2", "AGR3", "AGR4", "AGR5", "AGR6", "AGR7", "AGR8", "AGR9", "AGR10"],
     "Responsabilidad": ["CSN1", "CSN2", "CSN3", "CSN4", "CSN5", "CSN6", "CSN7", "CSN8", "CSN9", "CSN10"],
     "Apertura a la experiencia": ["OPN1", "OPN2", "OPN3", "OPN4", "OPN5", "OPN6", "OPN7", "OPN8", "OPN9", "OPN10"]
 }
 
-# Colores para categorías
 category_colors = {
-    "Extroversión": "#1f77b4",
+    "Extraversión": "#1f77b4",
     "Inestabilidad emocional": "#ff7f0e",
     "Amabilidad": "#2ca02c",
     "Responsabilidad": "#d62728",
@@ -148,19 +146,20 @@ category_colors = {
 # Inicializar estado de la sesión
 if "responses" not in st.session_state:
     st.session_state.responses = {}
-    st.session_state.previous_responses = {}  # Add this to track changes
+    st.session_state.previous_responses = {}
 
-# Barra de progreso
-total_questions = sum(len(qs) for qs in categories.values())
-completed_questions = len([resp for resp in st.session_state.responses.values() if resp != "Neutral"])
-progress = completed_questions / total_questions
+# Calcular el progreso
+if categories:
+    total_questions = sum(len(qs) for qs in categories.values())
+    completed_questions = len([resp for resp in st.session_state.responses.values() if resp != "Seleccione una opción"])
+    progress = completed_questions / total_questions if total_questions > 0 else 0
 
-st.progress(progress)
-st.markdown(f"""
-    <div style="text-align: center; color: #666;">
-        Progreso: {completed_questions}/{total_questions} preguntas respondidas ({int(progress * 100)}%)
-    </div>
-""", unsafe_allow_html=True)
+    st.progress(progress)
+    st.markdown(f"""
+        <div style="text-align: center; color: #666;">
+            Progreso: {completed_questions}/{total_questions} preguntas respondidas ({int(progress * 100)}%)
+        </div>
+    """, unsafe_allow_html=True)
 
 # Crear pestañas para las categorías
 tabs = st.tabs(list(categories.keys()))
@@ -180,24 +179,23 @@ for idx, (category, q_keys) in enumerate(categories.items()):
                 </div>
             """, unsafe_allow_html=True)
             
-            previous_value = st.session_state.responses.get(q_key, "Neutral")
+            previous_value = st.session_state.responses.get(q_key, "Seleccione una opción")
             
-            response = st.select_slider(
+            response = st.selectbox(
                 "",
-                options=["Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"],
+                ["Seleccione una opción", "Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"],
                 key=q_key,
-                value=previous_value
+                index=0 if previous_value == "Seleccione una opción" else ["Seleccione una opción", "Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"].index(previous_value)
             )
             
-            if response != "Neutral":
+            if response != "Seleccione una opción":
                 st.session_state.responses[q_key] = response
-            elif q_key in st.session_state.responses and response == "Neutral":
+            elif q_key in st.session_state.responses and response == "Seleccione una opción":
                 del st.session_state.responses[q_key]
             
-            # Forzar la reejecución si esta es la primera respuesta o si la respuesta ha cambiado.
-            if (previous_value == "Neutral" and response != "Neutral") or (previous_value != response):
+            if (previous_value == "Seleccione una opción" and response != "Seleccione una opción") or (previous_value != response):
                 st.session_state.previous_responses = dict(st.session_state.responses)
-                st.rerun()  # Updated from experimental_rerun() to rerun()
+                st.rerun()
 
 # Botón de predicción
 if st.button("📊 Realizar predicción", type="primary", use_container_width=True):
@@ -216,7 +214,6 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                 response = st.session_state.responses.get(q_key, "Neutral")
                 data.append(response_mapping[response])
             
-            # Mostrar resultados
             try:
                 prediction = model.predict([data])
                 result = category_mapping[str(prediction[0])]
@@ -232,24 +229,92 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                     </div>
                 """, unsafe_allow_html=True)
                 
+                # Definir las descripciones de personalidad
+                personality_descriptions = {
+    "Abierto a la experiencia": "La apertura a la experiencia es un aprecio general por el arte, la emoción, la aventura, las ideas inusuales, la imaginación, la curiosidad y la variedad de experiencias. Las personas abiertas a la experiencia son intelectualmente curiosas, abiertas a las emociones, sensibles a la belleza y dispuestas a probar cosas nuevas. Tienden a ser, en comparación con las personas cerradas, más creativas y más conscientes de sus sentimientos. También son más propensas a tener creencias poco convencionales. Además, se dice que las personas muy abiertas persiguen la autorrealización buscando experiencias intensas y eufóricas.",
+    
+    "Responsable": "La responsabilidad es una tendencia a la autodisciplina, a actuar con diligencia y a esforzarse por conseguir logros a pesar de las medidas o las expectativas externas. Está relacionada con el nivel de control, regulación y dirección de los impulsos de las personas. Un alto grado de responsabilidad o escrupulosidad suele percibirse como una persona obstinada y centrada. La baja responsabilidad se asocia con la flexibilidad y la espontaneidad, pero también puede aparecer como dejadez y falta de fiabilidad. Un nivel alto de responsabilidad indica una preferencia por el comportamiento planificado en lugar del espontáneo. El nivel medio de responsabilidad aumenta entre los adultos jóvenes y disminuye entre los adultos mayores.",
+    
+    "Extrovertido": "La extraversión se caracteriza por la amplitud de actividades (en contraposición a la profundidad), la urgencia de actividades/situaciones externas y la creación de energía a partir de medios externos. Este rasgo se caracteriza por un fuerte compromiso con el mundo exterior. Los extrovertidos disfrutan interactuando con la gente y a menudo se les percibe como personas enérgicas. Suelen ser entusiastas y estar orientados a la acción. Poseen una gran visibilidad de grupo, les gusta hablar y hacerse valer. Los extrovertidos pueden parecer más dominantes en entornos sociales, a diferencia de los introvertidos en ese entorno.",
+    
+    "Amable": "La amabilidad es la preocupación general por la armonía social. Las personas agradables valoran llevarse bien con los demás. Suelen ser consideradas, amables, generosas, confiadas y dignas de confianza, serviciales y dispuestas a comprometer sus intereses con los demás. También tienen una visión optimista de la naturaleza humana. Las personas desagradables anteponen el interés propio a llevarse bien con los demás. Por lo general, no se preocupan por el bienestar de los demás y son menos propensos a sacrificarse por los demás.",
+    
+    "Inestable emocionalmente": "La inestabilidad emocional o neuroticismo es la tendencia a tener fuertes emociones negativas, como ira, ansiedad o depresión. Las personas neuróticas son emocionalmente reactivas y vulnerables al estrés. Son más propensas a interpretar situaciones ordinarias como amenazantes. Pueden percibir frustraciones menores como irremediablemente difíciles. También tienden a ser superficiales en la forma de expresar sus emociones. Sus reacciones emocionales negativas tienden a permanecer durante periodos de tiempo inusualmente largos, lo que significa que a menudo están de mal humor."
+}
+
+                # Mostrar la descripción correspondiente
+                # st.markdown("<h3>Descripción de tu tipo de personalidad:</h3>", unsafe_allow_html=True)
+                # st.markdown(personality_descriptions[result])
+
+                
+                # Mostrar la descripción correspondiente con estilo mejorado
+                description_html = f"""
+                    <div style="
+                        background-color: white;
+                        padding: 2rem;
+                        border-radius: 1rem;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        margin: 2rem 0;
+                        border-left: 5px solid #1f77b4;
+                    ">
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 1rem;
+                            border-bottom: 2px solid #f0f2f6;
+                            padding-bottom: 1rem;
+                        ">
+                            <span style="
+                                font-size: 2rem;
+                                margin-right: 1rem;
+                            ">🔍</span>
+                            <h3 style="
+                                margin: 0;
+                                color: #1f77b4;
+                                font-size: 1.5rem;
+                            ">Análisis Detallado de tu Personalidad</h3>
+                        </div>
+                        <div style="
+                            line-height: 1.6;
+                            color: #2c3e50;
+                            font-size: 1.1rem;
+                            text-align: justify;
+                            margin-bottom: 1.5rem;
+                        ">
+                            {personality_descriptions[result]}
+                        </div>
+                        <div style="
+                            margin-top: 1.5rem;
+                            padding-top: 1rem;
+                            border-top: 2px solid #f0f2f6;
+                            font-size: 0.9rem;
+                            color: #666;
+                            text-align: center;
+                        ">
+                            💡 Esta descripción se basa en el análisis de tus respuestas al cuestionario
+                        </div>
+                    </div>
+                """
+
+                st.markdown(description_html, unsafe_allow_html=True)
+
+                # Calcular puntuaciones para el CSV
                 results_df = pd.DataFrame({
                     "Categoría": list(categories.keys()),
                     "Puntuación": [sum(data[i:i+10])/10 for i in range(0, len(data), 10)]
                 })
-                
-                # Mostrar gráfico de barras
-                fig, ax = plt.subplots(figsize=(8, 4))
-                bars = ax.bar(results_df["Categoría"], results_df["Puntuación"], color=plt.cm.Paired(range(len(results_df))))
 
-                plt.xticks(rotation=45, ha="right")
+                # Botón de descarga
+                button_style = """
+                    <style>
+                    div.stDownloadButton > button {
+                        padding: 12px 24px;
+                        font-size: 16px;
+                    }
+                    </style>
+                """
+                st.markdown(button_style, unsafe_allow_html=True)
 
-                ax.bar_label(bars, fontsize=8)
-
-                ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.2f}"))
-
-                st.pyplot(fig, use_container_width=False)
-
-                # Descargar resultados
                 st.download_button(
                     label="📥 Descargar resultados",
                     data=results_df.to_csv(index=False),
