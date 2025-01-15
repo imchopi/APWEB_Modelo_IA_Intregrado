@@ -182,10 +182,11 @@ for idx, (category, q_keys) in enumerate(categories.items()):
             previous_value = st.session_state.responses.get(q_key, "Seleccione una opción")
             
             response = st.selectbox(
-                "",
+                "Seleccione una opción",
                 ["Seleccione una opción", "Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"],
                 key=q_key,
-                index=0 if previous_value == "Seleccione una opción" else ["Seleccione una opción", "Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"].index(previous_value)
+                index=0 if previous_value == "Seleccione una opción" else ["Seleccione una opción", "Totalmente en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Totalmente de acuerdo"].index(previous_value),
+                label_visibility="collapsed"
             )
             
             if response != "Seleccione una opción":
@@ -215,7 +216,13 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                 data.append(response_mapping[response])
             
             try:
+                # Sacar nombres de las columnas para añadirlas al modelo
+                feature_names = list(questions.keys())
+
+                data_df = pd.DataFrame([data], columns=feature_names)
+
                 prediction = model.predict([data])
+
                 result = category_mapping[str(prediction[0])]
                 
                 st.markdown("""
@@ -231,21 +238,16 @@ if st.button("📊 Realizar predicción", type="primary", use_container_width=Tr
                 
                 # Definir las descripciones de personalidad
                 personality_descriptions = {
-    "Abierto a la experiencia": "La apertura a la experiencia es un aprecio general por el arte, la emoción, la aventura, las ideas inusuales, la imaginación, la curiosidad y la variedad de experiencias. Las personas abiertas a la experiencia son intelectualmente curiosas, abiertas a las emociones, sensibles a la belleza y dispuestas a probar cosas nuevas. Tienden a ser, en comparación con las personas cerradas, más creativas y más conscientes de sus sentimientos. También son más propensas a tener creencias poco convencionales. Además, se dice que las personas muy abiertas persiguen la autorrealización buscando experiencias intensas y eufóricas.",
-    
-    "Responsable": "La responsabilidad es una tendencia a la autodisciplina, a actuar con diligencia y a esforzarse por conseguir logros a pesar de las medidas o las expectativas externas. Está relacionada con el nivel de control, regulación y dirección de los impulsos de las personas. Un alto grado de responsabilidad o escrupulosidad suele percibirse como una persona obstinada y centrada. La baja responsabilidad se asocia con la flexibilidad y la espontaneidad, pero también puede aparecer como dejadez y falta de fiabilidad. Un nivel alto de responsabilidad indica una preferencia por el comportamiento planificado en lugar del espontáneo. El nivel medio de responsabilidad aumenta entre los adultos jóvenes y disminuye entre los adultos mayores.",
-    
-    "Extrovertido": "La extraversión se caracteriza por la amplitud de actividades (en contraposición a la profundidad), la urgencia de actividades/situaciones externas y la creación de energía a partir de medios externos. Este rasgo se caracteriza por un fuerte compromiso con el mundo exterior. Los extrovertidos disfrutan interactuando con la gente y a menudo se les percibe como personas enérgicas. Suelen ser entusiastas y estar orientados a la acción. Poseen una gran visibilidad de grupo, les gusta hablar y hacerse valer. Los extrovertidos pueden parecer más dominantes en entornos sociales, a diferencia de los introvertidos en ese entorno.",
-    
-    "Amable": "La amabilidad es la preocupación general por la armonía social. Las personas agradables valoran llevarse bien con los demás. Suelen ser consideradas, amables, generosas, confiadas y dignas de confianza, serviciales y dispuestas a comprometer sus intereses con los demás. También tienen una visión optimista de la naturaleza humana. Las personas desagradables anteponen el interés propio a llevarse bien con los demás. Por lo general, no se preocupan por el bienestar de los demás y son menos propensos a sacrificarse por los demás.",
-    
-    "Inestable emocionalmente": "La inestabilidad emocional o neuroticismo es la tendencia a tener fuertes emociones negativas, como ira, ansiedad o depresión. Las personas neuróticas son emocionalmente reactivas y vulnerables al estrés. Son más propensas a interpretar situaciones ordinarias como amenazantes. Pueden percibir frustraciones menores como irremediablemente difíciles. También tienden a ser superficiales en la forma de expresar sus emociones. Sus reacciones emocionales negativas tienden a permanecer durante periodos de tiempo inusualmente largos, lo que significa que a menudo están de mal humor."
-}
-
-                # Mostrar la descripción correspondiente
-                # st.markdown("<h3>Descripción de tu tipo de personalidad:</h3>", unsafe_allow_html=True)
-                # st.markdown(personality_descriptions[result])
-
+                    "Abierto a la experiencia": "La apertura a la experiencia es un aprecio general por el arte, la emoción, la aventura, las ideas inusuales, la imaginación, la curiosidad y la variedad de experiencias. Las personas abiertas a la experiencia son intelectualmente curiosas, abiertas a las emociones, sensibles a la belleza y dispuestas a probar cosas nuevas. Tienden a ser, en comparación con las personas cerradas, más creativas y más conscientes de sus sentimientos. También son más propensas a tener creencias poco convencionales. Además, se dice que las personas muy abiertas persiguen la autorrealización buscando experiencias intensas y eufóricas.",
+                    
+                    "Responsable": "La responsabilidad es una tendencia a la autodisciplina, a actuar con diligencia y a esforzarse por conseguir logros a pesar de las medidas o las expectativas externas. Está relacionada con el nivel de control, regulación y dirección de los impulsos de las personas. Un alto grado de responsabilidad o escrupulosidad suele percibirse como una persona obstinada y centrada. La baja responsabilidad se asocia con la flexibilidad y la espontaneidad, pero también puede aparecer como dejadez y falta de fiabilidad. Un nivel alto de responsabilidad indica una preferencia por el comportamiento planificado en lugar del espontáneo. El nivel medio de responsabilidad aumenta entre los adultos jóvenes y disminuye entre los adultos mayores.",
+                    
+                    "Extrovertido": "La extraversión se caracteriza por la amplitud de actividades (en contraposición a la profundidad), la urgencia de actividades/situaciones externas y la creación de energía a partir de medios externos. Este rasgo se caracteriza por un fuerte compromiso con el mundo exterior. Los extrovertidos disfrutan interactuando con la gente y a menudo se les percibe como personas enérgicas. Suelen ser entusiastas y estar orientados a la acción. Poseen una gran visibilidad de grupo, les gusta hablar y hacerse valer. Los extrovertidos pueden parecer más dominantes en entornos sociales, a diferencia de los introvertidos en ese entorno.",
+                    
+                    "Amable": "La amabilidad es la preocupación general por la armonía social. Las personas agradables valoran llevarse bien con los demás. Suelen ser consideradas, amables, generosas, confiadas y dignas de confianza, serviciales y dispuestas a comprometer sus intereses con los demás. También tienen una visión optimista de la naturaleza humana. Las personas desagradables anteponen el interés propio a llevarse bien con los demás. Por lo general, no se preocupan por el bienestar de los demás y son menos propensos a sacrificarse por los demás.",
+                    
+                    "Inestable emocionalmente": "La inestabilidad emocional o neuroticismo es la tendencia a tener fuertes emociones negativas, como ira, ansiedad o depresión. Las personas neuróticas son emocionalmente reactivas y vulnerables al estrés. Son más propensas a interpretar situaciones ordinarias como amenazantes. Pueden percibir frustraciones menores como irremediablemente difíciles. También tienden a ser superficiales en la forma de expresar sus emociones. Sus reacciones emocionales negativas tienden a permanecer durante periodos de tiempo inusualmente largos, lo que significa que a menudo están de mal humor."
+                }
                 
                 # Mostrar la descripción correspondiente con estilo mejorado
                 description_html = f"""
