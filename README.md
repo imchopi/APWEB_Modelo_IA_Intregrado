@@ -1,14 +1,16 @@
 # Aplicación web con modelo de IA integrado
 ### Realizado por . . .
 
-[Video](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
-[Colab](https://github.com/imchopi/APWEB_Modelo_IA_Intregrado/blob/main/train_personality_model.ipynb)
-
 - Natalie Pilkington
 - Hugo Peralta Muñoz
 - Adrián Perogil Fernández
 
 # Proyecto Personality Predictor
+### Video de la aplicación en vivo (Sin sonido)
+[Video](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
+
+### Colab donde se entrenó el modelo
+[Colab](https://github.com/imchopi/APWEB_Modelo_IA_Intregrado/blob/main/train_personality_model.ipynb)
 
 Este proyecto es una aplicación web que predice rasgos de personalidad basándose en las respuestas del usuario a una serie de preguntas.
 
