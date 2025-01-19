@@ -1,8 +1,8 @@
 # Aplicación web con modelo de IA integrado
 ### Realizado por . . .
 
-![Video](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
-![Colab](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
+[Video](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
+[Colab](https://github.com/imchopi/APWEB_Modelo_IA_Intregrado/blob/main/train_personality_model.ipynb)
 
 - Natalie Pilkington
 - Hugo Peralta Muñoz
