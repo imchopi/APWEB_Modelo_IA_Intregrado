@@ -6,6 +6,9 @@
 - Adrián Perogil Fernández
 
 # Proyecto Personality Predictor
+### Enlace a la aplicación web
+[Web](https://apwebia.streamlit.app/)
+
 ### Video de la aplicación en vivo (Sin sonido)
 [Video](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
 
