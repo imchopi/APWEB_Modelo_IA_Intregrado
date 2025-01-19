@@ -6,6 +6,9 @@
 - Adrián Perogil Fernández
 
 # Proyecto Personality Predictor
+### Enlace a la presentación para la exposición
+[Presentación](https://www.canva.com/design/DAGbyrJpXHA/mmlnCxcHjKr8kH55TkmvtA/edit)
+
 ### Enlace a la aplicación web
 [Web](https://apwebia.streamlit.app/)
 
