@@ -1,5 +1,9 @@
 # Aplicación web con modelo de IA integrado
 ### Realizado por . . .
+
+![Video](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
+![Colab](https://drive.google.com/file/d/19uxpKlPufJ3KG7Dhn80NsPi0SaAPkNZu/view?usp=sharing)
+
 - Natalie Pilkington
 - Hugo Peralta Muñoz
 - Adrián Perogil Fernández
